@@ -1,5 +1,6 @@
 class View {
   static showAllUsers(users) {
+    console.log(users);
     console.table(
       users.map((el) => {
         return el.toJSON();
