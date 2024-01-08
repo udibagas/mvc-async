@@ -72,6 +72,47 @@ class Model {
 
     return newUser;
   }
+
+  static registerCb(firstName, lastName, email, gender, age, cb) {
+    this.getAllUsersCallback((err, users) => {
+      if (err) {
+        cb(err);
+      } else {
+        const lastData = users.at(-1);
+        const id = lastData.id + 1;
+        const newUser = UserFactory.create({
+          id,
+          firstName,
+          lastName,
+          email,
+          gender,
+          age,
+        });
+
+        users.push(newUser); // array of object instance
+        const arrData = users.map((el) => {
+          return {
+            id: el.id,
+            firstName: el.firstName,
+            lastName: el.lastName,
+            email: el.email,
+            gender: el.gender,
+            age: el.age, // getter
+          };
+        });
+
+        const dataToBeWritten = JSON.stringify(arrData, null, 2); // string
+
+        fs.writeFile("./data/users.json", dataToBeWritten, (err) => {
+          if (err) {
+            cb(err);
+          } else {
+            cb(null, newUser);
+          }
+        });
+      }
+    });
+  }
 }
 
 module.exports = Model;
