@@ -1,59 +1,111 @@
+const fs = require("fs");
+const Profile = require("./profile");
+
 class User {
-  #age;
+  #password;
 
-  constructor(id, firstName, lastName, email, gender, age) {
+  constructor(id, email, password, profile) {
     this.id = id;
-    this.firstName = firstName;
-    this.lastName = lastName;
     this.email = email;
-    this.gender = gender;
-    this.#age = age;
-  }
-
-  get age() {
-    return this.#age;
+    this.#password = password;
+    const { firstName, lastName, gender, age } = profile;
+    this.profile = new Profile(firstName, lastName, gender, age);
   }
 
   get fullName() {
-    return `${this.firstName} ${this.lastName}`;
+    return `${this.profile.firstName} ${this.profile.lastName}`;
+  }
+
+  get password() {
+    return "*****";
   }
 
   toJSON() {
     return {
-      ID: this.id,
-      "Full Name": this.fullName,
-      Email: this.email,
-      Gender: this.gender,
+      id: this.id,
+      email: this.email,
+      password: this.#password,
+      profile: this.profile,
     };
   }
-}
 
-class MaleUser extends User {
-  constructor(id, firstName, lastName, email, age) {
-    super(id, firstName, lastName, email, "Male", age);
+  //! semua data yang keluar dari model harus berupa instance
+  static readAllUsers() {
+    const data = fs.readFileSync("./data/users.json", "utf-8");
+    const parsedData = JSON.parse(data);
+    const users = UserFactory.createBulk(parsedData);
+    return users;
   }
-}
 
-class FemaleUser extends User {
-  constructor(id, firstName, lastName, email, age) {
-    super(id, firstName, lastName, email, "Female", age);
+  static readAllUsersCallback(cb) {
+    fs.readFile("./data/users.json", "utf-8", (err, data) => {
+      if (err) {
+        cb(err);
+      } else {
+        const parsedData = JSON.parse(data);
+        const users = UserFactory.createBulk(parsedData);
+        cb(null, users);
+      }
+    });
+  }
+
+  static readAllUsersPromise() {
+    return fs.promises.readFile("./data/users.json", "utf-8").then((data) => {
+      const parsedData = JSON.parse(data);
+      const users = UserFactory.createBulk(parsedData);
+      return users;
+    });
+  }
+
+  static async readAllUsersAsyncAwait() {
+    const data = await fs.promises.readFile("./data/users.json", "utf-8");
+    const parsedData = JSON.parse(data);
+    const users = UserFactory.createBulk(parsedData);
+    return users;
+  }
+
+  static async register(email, password, firstName, lastName, gender, age) {
+    if (age < 18) {
+      throw new Error("Belum cukup umur");
+    }
+
+    const users = await this.readAllUsersAsyncAwait();
+    const lastData = users.at(-1);
+    const id = lastData.id + 1;
+
+    const newUser = UserFactory.create({
+      id,
+      email,
+      password,
+      lastName,
+      firstName,
+      age,
+      gender,
+    });
+
+    users.push(newUser);
+    const data = JSON.stringify(users, null, 2);
+    await fs.promises.writeFile("./data/users.json", data);
+    return newUser;
   }
 }
 
 class UserFactory {
-  static create({ id, firstName, lastName, email, gender, age }) {
-    if (gender == "Male") {
-      return new MaleUser(id, firstName, lastName, email, age);
-    }
-
-    if (gender == "Female") {
-      return new FemaleUser(id, firstName, lastName, email, age);
-    }
+  static createBulk(data) {
+    return data.map((el) => {
+      return new User(el.id, el.email, el.password, el.profile);
+    });
   }
 
-  static createBulk(arrData) {
-    return arrData.map((el) => this.create(el));
+  static create(data) {
+    const { id, email, password, firstName, lastName, gender, age } = data;
+    return new User(id, email, password, {
+      firstName,
+      lastName,
+      gender,
+      age,
+    });
   }
 }
 
-module.exports = UserFactory;
+module.exports = User;

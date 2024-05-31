@@ -1,52 +1,54 @@
-const Model = require("../models");
+const User = require("../models/user");
 const View = require("../views");
 
 class Controller {
-  static async list() {
-    // ! Sync
-    // const users = Model.getAllUsers();
-    // ! Callback
-    // Model.getAllUsersCallback((err, users) => {
+  static showHelp() {
+    View.showHelp();
+  }
+
+  static async showUsers() {
+    //! sync
+    // const users = User.readAllUsers();
+    // View.showUsers(users);
+    //! callback
+    // User.readAllUsersCallback((err, users) => {
     //   if (err) {
     //     View.showError(err);
     //   } else {
-    //     View.showAllUsers(users);
+    //     View.showUsers(users);
     //   }
     // });
-    // ! Promise
-    // Model.getAllUsersPromise()
+    // ! promise
+    // User.readAllUsersAsyncAwait()
     //   .then((users) => {
-    //     View.showAllUsers(users);
+    //     View.showUsers(users);
     //   })
     //   .catch((err) => {
     //     View.showError(err);
     //   });
-    // Model.getAllUsersAsyncAwait()
-    //   .then((users) => {
-    //     View.showAllUsers(users);
-    //   })
-    //   .catch((err) => {
-    //     View.showError(err);
-    //   });
-
     try {
-      const users = await Model.getAllUsersAsyncAwait();
-      View.showAllUsers(users);
+      const users = await User.readAllUsersPromise();
+      View.showUsers(users);
     } catch (err) {
       View.showError(err);
     }
   }
 
-  static async register(firstName, lastName, email, gender, age) {
-    const newUser = await Model.register(
-      firstName,
-      lastName,
-      email,
-      gender,
-      age
-    );
+  static async register(email, password, firstName, lastName, gender, age) {
+    try {
+      const newUser = await User.register(
+        email,
+        password,
+        firstName,
+        lastName,
+        gender,
+        age
+      );
 
-    View.registerSuccess(newUser);
+      View.registerSuccess(newUser);
+    } catch (error) {
+      View.showError(error);
+    }
   }
 }
 

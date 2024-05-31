@@ -1,11 +1,26 @@
 class View {
-  static showAllUsers(users) {
+  static showHelp() {
+    console.log(`
+      Available command:
+      > node app.js help
+      > node app.js list
+      > node app.js register email password firstName lastName gender age
+    `);
+  }
+
+  static showUsers(users) {
     console.log(users);
-    console.table(
-      users.map((el) => {
-        return el.toJSON();
-      })
-    );
+    users = users.map((user) => {
+      return {
+        ID: user.id,
+        Fullaname: user.fullName,
+        Email: user.email,
+        Gender: user.profile.gender,
+        Age: user.profile.age,
+      };
+    });
+
+    console.table(users);
   }
 
   static showError(err) {
@@ -13,7 +28,7 @@ class View {
   }
 
   static registerSuccess(newUser) {
-    console.log(`Pendaftaran user dengan nama ${newUser.fullName} sukses`);
+    console.log(`User ${newUser.fullName} has been created!`);
   }
 }
 

@@ -1,42 +1,46 @@
 [
   {
     "id": 1,
-    "firstName": "Royce",
-    "lastName": "Fishpoole",
     "email": "rfishpoole0@techcrunch.com",
-    "gender": "Male",
-    "age": 26
+    "password": "rahasia",
+    "profile": {
+      "firstName": "Royce",
+      "lastName": "Fishpoole",
+      "gender": "Male",
+      "age": 26
+    }
   },
   {
     "id": 2,
-    "firstName": "Hanni",
-    "lastName": "Forstall",
     "email": "hforstall1@a8.net",
-    "gender": "Female",
-    "age": 21
+    "password": "rahasia",
+    "profile": {
+      "firstName": "Hanni",
+      "lastName": "Forstall",
+      "gender": "Female",
+      "age": 21
+    }
   },
   {
     "id": 3,
-    "firstName": "Worth",
-    "lastName": "Brewett",
     "email": "wbrewett2@hostgator.com",
-    "gender": "Male",
-    "age": 28
+    "password": "rahasia",
+    "profile": {
+      "firstName": "Worth",
+      "lastName": "Brewett",
+      "gender": "Male",
+      "age": 28
+    }
   },
   {
     "id": 4,
-    "firstName": "bagas",
-    "lastName": "udi",
-    "email": "udi@mail.com",
-    "gender": "Male",
-    "age": 28
-  },
-  {
-    "id": 5,
-    "firstName": "Ario",
-    "lastName": "Bimo",
-    "email": "bimo@ario.com",
-    "gender": "Male",
-    "age": 21
+    "email": "bagas@mail.com",
+    "password": "rahasia",
+    "profile": {
+      "firstName": "Bagas",
+      "lastName": "Udi",
+      "gender": "Male",
+      "age": 27
+    }
   }
 ]
