@@ -1,34 +1,32 @@
 class View {
-  static showHelp() {
+  static help() {
     console.log(`
-      Available command:
-      > node app.js help
-      > node app.js list
-      > node app.js register email password firstName lastName gender age
+    Command:
+
+    $ node app.js list
+    $ node app.js register email password fName lName gender age
     `);
   }
 
   static showUsers(users) {
     console.log(users);
-    users = users.map((user) => {
+    users = users.map((el) => {
       return {
-        ID: user.id,
-        Fullaname: user.fullName,
-        Email: user.email,
-        Gender: user.profile.gender,
-        Age: user.profile.age,
+        ID: el.id,
+        Email: el.email,
+        Name: el.fullName,
       };
     });
 
     console.table(users);
   }
 
-  static showError(err) {
-    console.log(err.message);
+  static showError(error) {
+    console.log(error.message);
   }
 
   static registerSuccess(newUser) {
-    console.log(`User ${newUser.fullName} has been created!`);
+    console.log(`User ${newUser.fullName} is created!`);
   }
 }
 

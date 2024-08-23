@@ -1,13 +1,25 @@
 const Controller = require("./controllers");
 
-const command = process.argv[2];
+const [cmd, ...params] = process.argv.slice(2);
 
-if (command === "list") {
-  Controller.showUsers();
-} else if (command === "register") {
-  const [email, password, firstName, lastName, gender, age] =
-    process.argv.slice(3);
-  Controller.register(email, password, firstName, lastName, gender, +age);
-} else {
-  Controller.showHelp();
+switch (cmd) {
+  case "list":
+    Controller.list();
+    break;
+
+  case "register":
+    // TODO: create new user
+    const [email, password, firstName, lastName, gender, age] = params;
+    Controller.register(email, password, firstName, lastName, gender, +age);
+    break;
+
+  case "changePassword": {
+    const [email, newPassword] = params;
+    Controller.changePassword(email, newPassword);
+    break;
+  }
+
+  default:
+    Controller.help();
+    break;
 }

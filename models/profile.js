@@ -5,6 +5,10 @@ class Profile {
     this.gender = gender;
     this.age = age;
   }
+
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
 }
 
 module.exports = Profile;

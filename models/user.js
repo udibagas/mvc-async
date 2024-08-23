@@ -1,23 +1,15 @@
 const fs = require("fs");
 const Profile = require("./profile");
 
+// ! semua data yang keluar dari model harus beruap instance
 class User {
   #password;
-
   constructor(id, email, password, profile) {
     this.id = id;
     this.email = email;
     this.#password = password;
     const { firstName, lastName, gender, age } = profile;
     this.profile = new Profile(firstName, lastName, gender, age);
-  }
-
-  get fullName() {
-    return `${this.profile.firstName} ${this.profile.lastName}`;
-  }
-
-  get password() {
-    return "*****";
   }
 
   toJSON() {
@@ -29,58 +21,60 @@ class User {
     };
   }
 
-  //! semua data yang keluar dari model harus berupa instance
-  static readAllUsers() {
-    const data = fs.readFileSync("./data/users.json", "utf-8");
-    const parsedData = JSON.parse(data);
-    const users = UserFactory.createBulk(parsedData);
-    return users;
+  get fullName() {
+    return this.profile.fullName;
   }
 
-  static readAllUsersCallback(cb) {
+  static getAll() {
+    const data = fs.readFileSync("./data/users.json", "utf-8"); // ambil data
+    const parsedData = JSON.parse(data); // mengolah
+    return Userfactory.createUsers(parsedData); // data mateng
+  }
+
+  static getAllCallback(cb) {
     fs.readFile("./data/users.json", "utf-8", (err, data) => {
       if (err) {
-        cb(err);
-      } else {
-        const parsedData = JSON.parse(data);
-        const users = UserFactory.createBulk(parsedData);
-        cb(null, users);
+        return cb(err, null);
       }
+
+      const parsedData = JSON.parse(data); // mengolah
+      const users = Userfactory.createUsers(parsedData); // data mateng
+      cb(null, users);
     });
   }
 
-  static readAllUsersPromise() {
+  static getAllPromise() {
     return fs.promises.readFile("./data/users.json", "utf-8").then((data) => {
       const parsedData = JSON.parse(data);
-      const users = UserFactory.createBulk(parsedData);
+      const users = Userfactory.createUsers(parsedData);
       return users;
     });
   }
 
-  static async readAllUsersAsyncAwait() {
-    const data = await fs.promises.readFile("./data/users.json", "utf-8");
-    const parsedData = JSON.parse(data);
-    const users = UserFactory.createBulk(parsedData);
-    return users;
+  static async getAllAwait() {
+    try {
+      const data = await fs.promises.readFile("./data/users.json", "utf-8");
+      const parsedData = JSON.parse(data);
+      return Userfactory.createUsers(parsedData);
+    } catch (error) {
+      throw new Error("Failed to read database");
+    }
   }
 
-  static async register(email, password, firstName, lastName, gender, age) {
-    if (age < 18) {
-      throw new Error("Belum cukup umur");
-    }
+  static async register({ email, password, firstName, lastName, gender, age }) {
+    const users = await this.getAllAwait();
+    const id = users.length ? users.at(-1).id + 1 : 1;
 
-    const users = await this.readAllUsersAsyncAwait();
-    const lastData = users.at(-1);
-    const id = lastData.id + 1;
-
-    const newUser = UserFactory.create({
+    const newUser = Userfactory.createUser({
       id,
       email,
       password,
-      lastName,
-      firstName,
-      age,
-      gender,
+      profile: {
+        firstName,
+        lastName,
+        gender,
+        age,
+      },
     });
 
     users.push(newUser);
@@ -88,23 +82,26 @@ class User {
     await fs.promises.writeFile("./data/users.json", data);
     return newUser;
   }
+
+  static async changePassword(email, newPassword) {
+    const users = await this.getAllAwait();
+    const user = users.find((el) => el.email == email);
+    if (!user) throw new Error("User not found");
+    user.password = newPassword;
+    const data = JSON.stringify(users, null, 2);
+    await fs.promises.writeFile("./data/users.json", data);
+    return user;
+  }
 }
 
-class UserFactory {
-  static createBulk(data) {
-    return data.map((el) => {
-      return new User(el.id, el.email, el.password, el.profile);
-    });
+class Userfactory {
+  static createUser(user) {
+    const { id, email, password, profile } = user;
+    return new User(id, email, password, profile);
   }
 
-  static create(data) {
-    const { id, email, password, firstName, lastName, gender, age } = data;
-    return new User(id, email, password, {
-      firstName,
-      lastName,
-      gender,
-      age,
-    });
+  static createUsers(data) {
+    return data.map((el) => this.createUser(el));
   }
 }
 

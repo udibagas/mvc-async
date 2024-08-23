@@ -35,12 +35,23 @@
   {
     "id": 4,
     "email": "bagas@mail.com",
-    "password": "rahasia",
+    "password": "test",
     "profile": {
       "firstName": "Bagas",
       "lastName": "Udi",
       "gender": "Male",
-      "age": 27
+      "age": 26
+    }
+  },
+  {
+    "id": 5,
+    "email": "raihan@mail.com",
+    "password": "rahasia",
+    "profile": {
+      "firstName": "Raihan",
+      "lastName": "Prakasya",
+      "gender": "Male",
+      "age": 20
     }
   }
 ]

@@ -2,50 +2,60 @@ const User = require("../models/user");
 const View = require("../views");
 
 class Controller {
-  static showHelp() {
-    View.showHelp();
+  static help() {
+    View.help();
   }
 
-  static async showUsers() {
-    //! sync
-    // const users = User.readAllUsers();
+  static async list() {
+    // SYNC
+    // const users = User.getAll();
     // View.showUsers(users);
-    //! callback
-    // User.readAllUsersCallback((err, users) => {
+    // CALLBACK
+    // User.getAllCallback((err, users) => {
     //   if (err) {
     //     View.showError(err);
     //   } else {
     //     View.showUsers(users);
     //   }
     // });
-    // ! promise
-    // User.readAllUsersAsyncAwait()
+    // PROMISE
+    // User.getAllPromise()
     //   .then((users) => {
     //     View.showUsers(users);
     //   })
     //   .catch((err) => {
     //     View.showError(err);
     //   });
+
     try {
-      const users = await User.readAllUsersPromise();
+      const users = await User.getAllAwait();
       View.showUsers(users);
-    } catch (err) {
-      View.showError(err);
+    } catch (error) {
+      View.showError(error);
     }
   }
 
   static async register(email, password, firstName, lastName, gender, age) {
     try {
-      const newUser = await User.register(
+      const newUser = await User.register({
         email,
         password,
         firstName,
         lastName,
         gender,
-        age
-      );
+        age,
+      });
 
       View.registerSuccess(newUser);
+    } catch (error) {
+      View.showError(error);
+    }
+  }
+
+  static async changePassword(email, newPassword) {
+    try {
+      const user = await User.changePassword(email, newPassword);
+      console.log(user);
     } catch (error) {
       View.showError(error);
     }
