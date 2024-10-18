@@ -53,5 +53,16 @@
       "gender": "Male",
       "age": 20
     }
+  },
+  {
+    "id": 6,
+    "email": "bagas@mail.com",
+    "password": "rahasia",
+    "profile": {
+      "firstName": "Bagas",
+      "lastName": "Udi",
+      "gender": "Male",
+      "age": 30
+    }
   }
 ]

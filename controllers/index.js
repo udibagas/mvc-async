@@ -2,34 +2,44 @@ const User = require("../models/user");
 const View = require("../views");
 
 class Controller {
-  static help() {
-    View.help();
-  }
-
   static async list() {
-    // SYNC
-    // const users = User.getAll();
-    // View.showUsers(users);
-    // CALLBACK
-    // User.getAllCallback((err, users) => {
+    //! sync
+    // const users = User.getAllUsers();
+    // View.showAllUsers(users);
+    //! callback
+    // User.getAllUsersCallback((err, users) => {
     //   if (err) {
     //     View.showError(err);
     //   } else {
-    //     View.showUsers(users);
+    //     View.showAllUsers(users);
     //   }
     // });
-    // PROMISE
-    // User.getAllPromise()
+    //! Promise
+    // User.getAllUsersPromise()
     //   .then((users) => {
-    //     View.showUsers(users);
+    //     View.showAllUsers(users);
+    //   })
+    //   .catch((err) => {
+    //     View.showError(err);
+    //   });
+    // try {
+    //   const users = await User.getAllUsersPromise();
+    //   View.showAllUsers(users);
+    // } catch (error) {
+    //   View.showError(error);
+    // }
+
+    // User.getAllUsersAsync()
+    //   .then((users) => {
+    //     View.showAllUsers(users);
     //   })
     //   .catch((err) => {
     //     View.showError(err);
     //   });
 
     try {
-      const users = await User.getAllAwait();
-      View.showUsers(users);
+      const users = await User.getAllUsersAsync();
+      View.showAllUsers(users);
     } catch (error) {
       View.showError(error);
     }
@@ -37,25 +47,16 @@ class Controller {
 
   static async register(email, password, firstName, lastName, gender, age) {
     try {
-      const newUser = await User.register({
+      const newUser = await User.register(
         email,
         password,
         firstName,
         lastName,
         gender,
-        age,
-      });
+        age
+      );
 
-      View.registerSuccess(newUser);
-    } catch (error) {
-      View.showError(error);
-    }
-  }
-
-  static async changePassword(email, newPassword) {
-    try {
-      const user = await User.changePassword(email, newPassword);
-      console.log(user);
+      View.successRegister(newUser);
     } catch (error) {
       View.showError(error);
     }

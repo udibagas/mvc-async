@@ -1,15 +1,28 @@
 const fs = require("fs");
-const Profile = require("./profile");
 
-// ! semua data yang keluar dari model harus beruap instance
+class Profile {
+  constructor(firstName, lastName, gender, age) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.gender = gender;
+    this.age = +age;
+  }
+}
+
 class User {
   #password;
+
   constructor(id, email, password, profile) {
     this.id = id;
     this.email = email;
     this.#password = password;
-    const { firstName, lastName, gender, age } = profile;
-    this.profile = new Profile(firstName, lastName, gender, age);
+    // composition
+    this.profile = new Profile(
+      profile.firstName,
+      profile.lastName,
+      profile.gender,
+      profile.age
+    );
   }
 
   toJSON() {
@@ -22,86 +35,87 @@ class User {
   }
 
   get fullName() {
-    return this.profile.fullName;
+    return `${this.profile.firstName} ${this.profile.lastName}`;
   }
 
-  static getAll() {
-    const data = fs.readFileSync("./data/users.json", "utf-8"); // ambil data
-    const parsedData = JSON.parse(data); // mengolah
-    return Userfactory.createUsers(parsedData); // data mateng
+  //! semua data yang keluar dari model harus berupa instance
+  static getAllUsers() {
+    const data = fs.readFileSync("./data/users.json");
+    const parsedData = JSON.parse(data);
+
+    const users = parsedData.map((el) => {
+      const { id, email, password, profile } = el;
+      return new User(id, email, password, profile);
+    });
+
+    return users;
   }
 
-  static getAllCallback(cb) {
-    fs.readFile("./data/users.json", "utf-8", (err, data) => {
+  static getAllUsersCallback(cb) {
+    fs.readFile("./data/users.json", (err, data) => {
       if (err) {
-        return cb(err, null);
-      }
+        cb(err, null);
+      } else {
+        const parsedData = JSON.parse(data);
 
-      const parsedData = JSON.parse(data); // mengolah
-      const users = Userfactory.createUsers(parsedData); // data mateng
-      cb(null, users);
+        const users = parsedData.map((el) => {
+          const { id, email, password, profile } = el;
+          return new User(id, email, password, profile);
+        });
+
+        cb(null, users);
+      }
     });
   }
 
-  static getAllPromise() {
-    return fs.promises.readFile("./data/users.json", "utf-8").then((data) => {
+  static getAllUsersPromise() {
+    return fs.promises.readFile("./data/users.json").then((data) => {
       const parsedData = JSON.parse(data);
-      const users = Userfactory.createUsers(parsedData);
+
+      const users = parsedData.map((el) => {
+        const { id, email, password, profile } = el;
+        return new User(id, email, password, profile);
+      });
+
       return users;
     });
   }
 
-  static async getAllAwait() {
-    try {
-      const data = await fs.promises.readFile("./data/users.json", "utf-8");
-      const parsedData = JSON.parse(data);
-      return Userfactory.createUsers(parsedData);
-    } catch (error) {
-      throw new Error("Failed to read database");
-    }
-  }
+  static async getAllUsersAsync() {
+    const data = await fs.promises.readFile("./data/users.json");
+    const parsedData = JSON.parse(data);
 
-  static async register({ email, password, firstName, lastName, gender, age }) {
-    const users = await this.getAllAwait();
-    const id = users.length ? users.at(-1).id + 1 : 1;
-
-    const newUser = Userfactory.createUser({
-      id,
-      email,
-      password,
-      profile: {
-        firstName,
-        lastName,
-        gender,
-        age,
-      },
+    const users = parsedData.map((el) => {
+      const { id, email, password, profile } = el;
+      return new User(id, email, password, profile);
     });
 
+    console.log(users);
+
+    return users;
+  }
+
+  static async register(email, password, firstName, lastName, gender, age) {
+    const users = await this.getAllUsersAsync();
+    let id = 1;
+
+    if (users.length > 0) {
+      id = users.at(-1).id + 1;
+    }
+    const profile = {
+      firstName,
+      lastName,
+      gender,
+      age,
+    };
+
+    const newUser = new User(id, email, password, profile);
     users.push(newUser);
+
     const data = JSON.stringify(users, null, 2);
     await fs.promises.writeFile("./data/users.json", data);
+
     return newUser;
-  }
-
-  static async changePassword(email, newPassword) {
-    const users = await this.getAllAwait();
-    const user = users.find((el) => el.email == email);
-    if (!user) throw new Error("User not found");
-    user.password = newPassword;
-    const data = JSON.stringify(users, null, 2);
-    await fs.promises.writeFile("./data/users.json", data);
-    return user;
-  }
-}
-
-class Userfactory {
-  static createUser(user) {
-    const { id, email, password, profile } = user;
-    return new User(id, email, password, profile);
-  }
-
-  static createUsers(data) {
-    return data.map((el) => this.createUser(el));
   }
 }
 
